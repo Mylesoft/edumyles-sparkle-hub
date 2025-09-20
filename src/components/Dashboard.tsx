@@ -4,13 +4,21 @@ import { FeatureCards } from "@/components/FeatureCards";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import SuperAdminPanel from "@/components/panels/SuperAdminPanel";
+import TeacherPanel from "@/components/panels/TeacherPanel";
+import StudentPanel from "@/components/panels/StudentPanel";
+import MultiCampusModule from "@/components/modules/MultiCampusModule";
 import { 
   Sparkles, 
   Rocket, 
   Heart,
   MapPin,
   Users,
-  BookOpen
+  BookOpen,
+  Building2,
+  Brain,
+  GraduationCap
 } from "lucide-react";
 
 const WelcomeSection = () => {
@@ -119,9 +127,48 @@ export const Dashboard = () => {
         <Navigation />
         <main className="flex-1 overflow-auto">
           <div className="container mx-auto p-8 max-w-7xl">
-            <WelcomeSection />
-            <KeyHighlights />
-            <FeatureCards />
+            <Tabs defaultValue="overview" className="space-y-6">
+              <TabsList className="grid w-full grid-cols-6">
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="super-admin">Super Admin</TabsTrigger>
+                <TabsTrigger value="teacher">Teacher Panel</TabsTrigger>
+                <TabsTrigger value="student">Student Panel</TabsTrigger>
+                <TabsTrigger value="multi-campus">Multi-Campus</TabsTrigger>
+                <TabsTrigger value="features">All Features</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="overview" className="space-y-6">
+                <WelcomeSection />
+                <KeyHighlights />
+                <FeatureCards />
+              </TabsContent>
+
+              <TabsContent value="super-admin">
+                <SuperAdminPanel />
+              </TabsContent>
+
+              <TabsContent value="teacher">
+                <TeacherPanel />
+              </TabsContent>
+
+              <TabsContent value="student">
+                <StudentPanel />
+              </TabsContent>
+
+              <TabsContent value="multi-campus">
+                <MultiCampusModule />
+              </TabsContent>
+
+              <TabsContent value="features">
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <h2 className="text-3xl font-bold text-foreground mb-2">Complete Feature Suite</h2>
+                    <p className="text-muted-foreground">Explore all EduMyles modules and capabilities</p>
+                  </div>
+                  <FeatureCards />
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </main>
       </div>
