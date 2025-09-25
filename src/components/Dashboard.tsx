@@ -8,7 +8,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SuperAdminPanel from "@/components/panels/SuperAdminPanel";
 import TeacherPanel from "@/components/panels/TeacherPanel";
 import StudentPanel from "@/components/panels/StudentPanel";
+import AlumniPanel from "@/components/panels/AlumniPanel";
+import StaffPanel from "@/components/panels/StaffPanel";
 import MultiCampusModule from "@/components/modules/MultiCampusModule";
+import AIAssistantModule from "@/components/modules/AIAssistantModule";
+import GamificationModule from "@/components/modules/GamificationModule";
 import { 
   Sparkles, 
   Rocket, 
@@ -128,13 +132,16 @@ export const Dashboard = () => {
         <main className="flex-1 overflow-auto">
           <div className="container mx-auto p-8 max-w-7xl">
             <Tabs defaultValue="overview" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-6">
+              <TabsList className="grid w-full grid-cols-9">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="super-admin">Super Admin</TabsTrigger>
-                <TabsTrigger value="teacher">Teacher Panel</TabsTrigger>
-                <TabsTrigger value="student">Student Panel</TabsTrigger>
+                <TabsTrigger value="teacher">Teacher</TabsTrigger>
+                <TabsTrigger value="student">Student</TabsTrigger>
+                <TabsTrigger value="alumni">Alumni</TabsTrigger>
+                <TabsTrigger value="staff">Staff</TabsTrigger>
+                <TabsTrigger value="ai-assistant">Myles AI</TabsTrigger>
+                <TabsTrigger value="gamification">Gamification</TabsTrigger>
                 <TabsTrigger value="multi-campus">Multi-Campus</TabsTrigger>
-                <TabsTrigger value="features">All Features</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="space-y-6">
@@ -155,18 +162,24 @@ export const Dashboard = () => {
                 <StudentPanel />
               </TabsContent>
 
-              <TabsContent value="multi-campus">
-                <MultiCampusModule />
+              <TabsContent value="alumni">
+                <AlumniPanel />
               </TabsContent>
 
-              <TabsContent value="features">
-                <div className="space-y-6">
-                  <div className="text-center">
-                    <h2 className="text-3xl font-bold text-foreground mb-2">Complete Feature Suite</h2>
-                    <p className="text-muted-foreground">Explore all EduMyles modules and capabilities</p>
-                  </div>
-                  <FeatureCards />
-                </div>
+              <TabsContent value="staff">
+                <StaffPanel />
+              </TabsContent>
+
+              <TabsContent value="ai-assistant">
+                <AIAssistantModule />
+              </TabsContent>
+
+              <TabsContent value="gamification">
+                <GamificationModule />
+              </TabsContent>
+
+              <TabsContent value="multi-campus">
+                <MultiCampusModule />
               </TabsContent>
             </Tabs>
           </div>
