@@ -193,14 +193,14 @@ export const SignupForm = () => {
         )}
       </div>
 
-      <Button
-        type="submit"
-        className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white"
-        disabled={isLoading}
-      >
-        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        SIGN UP
-      </Button>
+        <Button
+          type="submit"
+          className="w-full bg-gradient-primary hover:opacity-90 text-white font-semibold py-3 transition-smooth"
+          disabled={isLoading}
+        >
+          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          CREATE EDUMYLES ACCOUNT
+        </Button>
     </form>
   );
 };
