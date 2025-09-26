@@ -47,6 +47,16 @@ export interface TenantModule {
   configuration?: Record<string, any>;
 }
 
+export interface UserProfile {
+  id: string;
+  tenant_id: string;
+  role: 'super_admin' | 'tenant_admin' | 'teacher' | 'student' | 'staff' | 'alumni';
+  full_name: string;
+  avatar_url?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ModuleReview {
   id: string;
   module_id: string;
@@ -56,6 +66,40 @@ export interface ModuleReview {
   created_at: string;
   tenant_name: string;
 }
+
+// Authentication Services
+export const authService = {
+  async getCurrentProfile() {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) return null;
+
+    const { data, error } = await supabase
+      .from('user_profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async updateProfile(updates: Partial<UserProfile>) {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) throw new Error('Not authenticated');
+
+    const { data, error } = await supabase
+      .from('user_profiles')
+      .update(updates)
+      .eq('id', user.id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+};
 
 // Database Functions
 export const moduleService = {

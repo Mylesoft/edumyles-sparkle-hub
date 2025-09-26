@@ -1,9 +1,31 @@
-import { Bell, Search, User } from "lucide-react";
+import { Bell, Settings, User, LogOut, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const Header = () => {
+  const { profile, signOut } = useAuth();
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase();
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
+
   return (
     <header className="border-b border-border bg-card shadow-card">
       <div className="container mx-auto px-6">
@@ -36,12 +58,38 @@ export const Header = () => {
               <Bell className="w-5 h-5" />
               <span className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full"></span>
             </Button>
-            <Avatar className="w-8 h-8">
-              <AvatarImage src="/placeholder.svg" />
-              <AvatarFallback className="bg-gradient-primary text-primary-foreground text-sm">
-                <User className="w-4 h-4" />
-              </AvatarFallback>
-            </Avatar>
+            
+            {/* User Profile */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-2 px-3">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback className="text-xs bg-gradient-primary text-primary-foreground">
+                      {profile ? getInitials(profile.full_name) : 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="text-left hidden md:block">
+                    <p className="text-sm font-medium">{profile?.full_name || 'User'}</p>
+                    <p className="text-xs text-muted-foreground capitalize">{profile?.role.replace('_', ' ')}</p>
+                  </div>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem>
+                  <User className="mr-2 h-4 w-4" />
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>

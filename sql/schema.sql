@@ -33,6 +33,17 @@ CREATE TABLE tenants (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- User profiles table linking auth.users to tenants
+CREATE TABLE user_profiles (
+    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
+    role VARCHAR(50) CHECK (role IN ('super_admin', 'tenant_admin', 'teacher', 'student', 'staff', 'alumni')) NOT NULL,
+    full_name VARCHAR(255) NOT NULL,
+    avatar_url TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Tenant modules junction table
 CREATE TABLE tenant_modules (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -103,26 +114,58 @@ ALTER TABLE modules ENABLE ROW LEVEL SECURITY;
 ALTER TABLE tenants ENABLE ROW LEVEL SECURITY;
 ALTER TABLE tenant_modules ENABLE ROW LEVEL SECURITY;
 ALTER TABLE module_reviews ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
 
 -- Allow all users to read modules (public store)
 CREATE POLICY "Modules are publicly readable" ON modules FOR SELECT USING (true);
 
+-- User profiles policies
+CREATE POLICY "Users can view own profile" ON user_profiles FOR SELECT USING (
+    auth.uid() = id
+);
+
+CREATE POLICY "Users can update own profile" ON user_profiles FOR UPDATE USING (
+    auth.uid() = id
+);
+
 -- Super admin can manage everything
 CREATE POLICY "Super admin full access" ON tenants FOR ALL USING (
-    auth.jwt() ->> 'role' = 'super_admin'
+    EXISTS (
+        SELECT 1 FROM user_profiles 
+        WHERE user_profiles.id = auth.uid() 
+        AND user_profiles.role = 'super_admin'
+    )
 );
 
 CREATE POLICY "Super admin modules access" ON tenant_modules FOR ALL USING (
-    auth.jwt() ->> 'role' = 'super_admin'
+    EXISTS (
+        SELECT 1 FROM user_profiles 
+        WHERE user_profiles.id = auth.uid() 
+        AND user_profiles.role = 'super_admin'
+    )
 );
 
 -- Tenants can only access their own data
 CREATE POLICY "Tenants can view own data" ON tenants FOR SELECT USING (
-    auth.uid()::text = id::text OR auth.jwt() ->> 'role' = 'super_admin'
+    id IN (
+        SELECT tenant_id FROM user_profiles 
+        WHERE user_profiles.id = auth.uid()
+    ) OR EXISTS (
+        SELECT 1 FROM user_profiles 
+        WHERE user_profiles.id = auth.uid() 
+        AND user_profiles.role = 'super_admin'
+    )
 );
 
 CREATE POLICY "Tenants can view own modules" ON tenant_modules FOR SELECT USING (
-    auth.uid()::text = tenant_id::text OR auth.jwt() ->> 'role' = 'super_admin'
+    tenant_id IN (
+        SELECT tenant_id FROM user_profiles 
+        WHERE user_profiles.id = auth.uid()
+    ) OR EXISTS (
+        SELECT 1 FROM user_profiles 
+        WHERE user_profiles.id = auth.uid() 
+        AND user_profiles.role = 'super_admin'
+    )
 );
 
 -- Reviews can be read by all, created by tenant owners
@@ -146,3 +189,13 @@ CREATE TRIGGER update_modules_updated_at BEFORE UPDATE
 
 CREATE TRIGGER update_tenants_updated_at BEFORE UPDATE
     ON tenants FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_user_profiles_updated_at BEFORE UPDATE
+    ON user_profiles FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Insert sample user profiles for existing tenants
+INSERT INTO user_profiles (id, tenant_id, role, full_name) VALUES
+(gen_random_uuid(), (SELECT id FROM tenants WHERE email = 'admin@greenwood.edu'), 'tenant_admin', 'Sarah Johnson'),
+(gen_random_uuid(), (SELECT id FROM tenants WHERE email = 'admin@stmarys.edu'), 'tenant_admin', 'Michael Smith'),
+(gen_random_uuid(), (SELECT id FROM tenants WHERE email = 'admin@techvalley.edu'), 'tenant_admin', 'Dr. Emily Chen'),
+(gen_random_uuid(), (SELECT id FROM tenants WHERE email = 'admin@riverside.edu'), 'tenant_admin', 'David Wilson');
