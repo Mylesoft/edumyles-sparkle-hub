@@ -3,13 +3,16 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { LoginForm } from './LoginForm';
 import { SignupForm } from './SignupForm';
+import { SupabaseStatus } from '../SupabaseStatus';
 
 export const AuthLayout = () => {
   const [isLogin, setIsLogin] = useState(true);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-100 to-slate-200">
-      <Card className="w-full max-w-4xl h-[600px] overflow-hidden shadow-premium">
+      <div className="w-full max-w-4xl">
+        <SupabaseStatus />
+        <Card className="w-full h-[600px] overflow-hidden shadow-premium">
         <div className="flex h-full">
           {/* Left Panel - Form */}
           <div className="flex-1 p-8 bg-white">
@@ -67,6 +70,7 @@ export const AuthLayout = () => {
           </div>
         </div>
       </Card>
+      </div>
     </div>
   );
 };
