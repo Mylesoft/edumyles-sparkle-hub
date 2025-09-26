@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,11 +9,9 @@ import { Switch } from "@/components/ui/switch";
 import { 
   Store, 
   Download, 
-  Play, 
-  Pause, 
+  Star,
   Settings, 
   Search,
-  Filter,
   GraduationCap,
   Users,
   BookOpen,
@@ -26,22 +25,23 @@ import {
   BarChart3,
   FileText,
   Globe,
-  Smartphone
+  Smartphone,
+  Clock,
+  CreditCard,
+  Database,
+  Mail,
+  TrendingUp,
+  UserCheck,
+  Wifi,
+  BookmarkPlus
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { moduleService, type Module } from "@/lib/supabase";
 
-interface Module {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
+interface StoreModule extends Module {
   icon: any;
-  version: string;
-  price: number;
   isInstalled: boolean;
   isEnabled: boolean;
-  requiredPlan: 'basic' | 'professional' | 'enterprise';
-  features: string[];
 }
 
 const moduleCategories = [
@@ -54,7 +54,7 @@ const moduleCategories = [
   { id: 'ai', name: 'AI & Intelligence', icon: Brain },
 ];
 
-const availableModules: Module[] = [
+const additionalModules: StoreModule[] = [
   {
     id: 'student-management',
     name: 'Student Management System',
@@ -65,108 +65,269 @@ const availableModules: Module[] = [
     price: 0,
     isInstalled: true,
     isEnabled: true,
-    requiredPlan: 'basic',
-    features: ['Student Profiles', 'CBC Grading', 'Attendance Tracking', 'Parent Portal']
+    required_plan: 'basic',
+    features: ['Student Profiles', 'CBC Grading', 'Attendance Tracking', 'Parent Portal'],
+    created_at: '2024-01-01',
+    updated_at: '2024-01-15',
+    developer: 'EduMyles Team',
+    downloads: 15420,
+    rating: 4.8,
+    reviews_count: 156
   },
   {
-    id: 'teacher-portal',
-    name: 'Teacher Management Portal',
-    description: 'Teacher dashboard with lesson planning and grade management',
+    id: 'attendance-tracker',
+    name: 'Smart Attendance Tracker',
+    description: 'Biometric and QR code-based attendance management with real-time notifications',
     category: 'academic',
-    icon: Users,
-    version: '2.0.5',
-    price: 0,
-    isInstalled: true,
-    isEnabled: true,
-    requiredPlan: 'basic',
-    features: ['Lesson Planning', 'Grade Book', 'Class Management', 'Resource Library']
-  },
-  {
-    id: 'myles-ai',
-    name: 'Myles AI Assistant',
-    description: 'AI-powered insights and automated school operations',
-    category: 'ai',
-    icon: Brain,
-    version: '3.2.1',
-    price: 2500,
-    isInstalled: true,
-    isEnabled: true,
-    requiredPlan: 'professional',
-    features: ['Predictive Analytics', 'Smart Scheduling', 'Performance Insights', 'Automated Reports']
-  },
-  {
-    id: 'multi-campus',
-    name: 'Multi-Campus Management',
-    description: 'Manage unlimited school locations from one dashboard',
-    category: 'administration',
-    icon: Building2,
-    version: '1.8.0',
-    price: 5000,
-    isInstalled: true,
-    isEnabled: false,
-    requiredPlan: 'enterprise',
-    features: ['Central Dashboard', 'Resource Sharing', 'Cross-Campus Reports', 'Unified Policies']
-  },
-  {
-    id: 'mpesa-payments',
-    name: 'M-Pesa Integration',
-    description: 'Seamless fee collection with Kenya\'s mobile money platform',
-    category: 'finance',
-    icon: Smartphone,
-    version: '1.5.2',
-    price: 1500,
+    icon: UserCheck,
+    version: '1.4.2',
+    price: 1200,
     isInstalled: false,
     isEnabled: false,
-    requiredPlan: 'basic',
-    features: ['Fee Collection', 'Payment Tracking', 'Automated Receipts', 'Financial Reports']
+    required_plan: 'professional',
+    features: ['Biometric Integration', 'QR Code Scanning', 'Real-time Alerts', 'Parent Notifications'],
+    created_at: '2024-02-01',
+    updated_at: '2024-03-10',
+    developer: 'EduTech Solutions',
+    downloads: 8950,
+    rating: 4.6,
+    reviews_count: 89
   },
   {
-    id: 'gamification',
-    name: 'Student Gamification',
-    description: 'Engage students with points, badges, and achievement systems',
+    id: 'library-management',
+    name: 'Digital Library System',
+    description: 'Complete library management with book tracking and digital resources',
     category: 'academic',
-    icon: Trophy,
-    version: '1.2.0',
-    price: 1000,
-    isInstalled: true,
-    isEnabled: true,
-    requiredPlan: 'professional',
-    features: ['Points System', 'Badges & Achievements', 'Leaderboards', 'Challenges']
-  },
-  {
-    id: 'communication-hub',
-    name: 'Communication Hub',
-    description: 'Unified messaging system for parents, teachers, and students',
-    category: 'communication',
-    icon: MessageSquare,
-    version: '2.3.1',
+    icon: BookOpen,
+    version: '2.0.1',
     price: 800,
     isInstalled: false,
     isEnabled: false,
-    requiredPlan: 'basic',
-    features: ['SMS Notifications', 'Parent Messaging', 'Announcements', 'Event Notifications']
+    required_plan: 'basic',
+    features: ['Book Catalog', 'Digital Resources', 'Check-out System', 'Fine Management'],
+    created_at: '2024-01-15',
+    updated_at: '2024-03-05',
+    developer: 'LibraTech',
+    downloads: 12340,
+    rating: 4.7,
+    reviews_count: 203
   },
   {
-    id: 'advanced-analytics',
-    name: 'Advanced Analytics Suite',
-    description: 'Deep insights into school performance and student outcomes',
-    category: 'analytics',
-    icon: BarChart3,
-    version: '1.0.8',
-    price: 3000,
+    id: 'examination-system',
+    name: 'Online Examination Platform',
+    description: 'Conduct secure online exams with automated grading and proctoring',
+    category: 'academic',
+    icon: FileText,
+    version: '3.1.0',
+    price: 2000,
     isInstalled: false,
     isEnabled: false,
-    requiredPlan: 'enterprise',
-    features: ['Performance Dashboards', 'Predictive Models', 'Custom Reports', 'Data Visualization']
+    required_plan: 'professional',
+    features: ['Question Bank', 'Auto Grading', 'Online Proctoring', 'Result Analytics'],
+    created_at: '2024-02-10',
+    updated_at: '2024-03-20',
+    developer: 'ExamPro',
+    downloads: 6780,
+    rating: 4.5,
+    reviews_count: 92
+  },
+  {
+    id: 'hostel-management',
+    name: 'Hostel Management System',
+    description: 'Complete hostel administration with room allocation and fee management',
+    category: 'administration',
+    icon: Building2,
+    version: '1.6.0',
+    price: 1500,
+    isInstalled: false,
+    isEnabled: false,
+    required_plan: 'professional',
+    features: ['Room Allocation', 'Mess Management', 'Visitor Tracking', 'Maintenance Requests'],
+    created_at: '2024-01-20',
+    updated_at: '2024-03-15',
+    developer: 'HostelTech',
+    downloads: 4560,
+    rating: 4.4,
+    reviews_count: 67
+  },
+  {
+    id: 'transport-management',
+    name: 'School Transport Tracker',
+    description: 'GPS-based school bus tracking with route optimization and safety alerts',
+    category: 'administration',
+    icon: Globe,
+    version: '2.2.0',
+    price: 1800,
+    isInstalled: false,
+    isEnabled: false,
+    required_plan: 'professional',
+    features: ['GPS Tracking', 'Route Planning', 'Safety Alerts', 'Parent App'],
+    created_at: '2024-02-05',
+    updated_at: '2024-03-12',
+    developer: 'TransportPro',
+    downloads: 7890,
+    rating: 4.6,
+    reviews_count: 134
+  },
+  {
+    id: 'inventory-management',
+    name: 'School Inventory System',
+    description: 'Track and manage school assets, supplies, and equipment efficiently',
+    category: 'administration',
+    icon: Database,
+    version: '1.3.5',
+    price: 900,
+    isInstalled: false,
+    isEnabled: false,
+    required_plan: 'basic',
+    features: ['Asset Tracking', 'Stock Management', 'Purchase Orders', 'Maintenance Logs'],
+    created_at: '2024-01-25',
+    updated_at: '2024-03-08',
+    developer: 'InventoryMax',
+    downloads: 5670,
+    rating: 4.3,
+    reviews_count: 78
+  },
+  {
+    id: 'email-automation',
+    name: 'Email Marketing Suite',
+    description: 'Automated email campaigns for admissions, events, and communications',
+    category: 'communication',
+    icon: Mail,
+    version: '2.4.0',
+    price: 1100,
+    isInstalled: false,
+    isEnabled: false,
+    required_plan: 'professional',
+    features: ['Campaign Builder', 'Template Library', 'Analytics Dashboard', 'A/B Testing'],
+    created_at: '2024-02-15',
+    updated_at: '2024-03-18',
+    developer: 'MailCraft',
+    downloads: 9230,
+    rating: 4.7,
+    reviews_count: 156
+  },
+  {
+    id: 'parent-portal',
+    name: 'Parent Engagement Portal',
+    description: 'Comprehensive parent portal with real-time updates and communication tools',
+    category: 'communication',
+    icon: Users,
+    version: '2.1.3',
+    price: 700,
+    isInstalled: true,
+    isEnabled: true,
+    required_plan: 'basic',
+    features: ['Progress Tracking', 'Assignment Updates', 'Teacher Chat', 'Event Calendar'],
+    created_at: '2024-01-10',
+    updated_at: '2024-03-22',
+    developer: 'ParentConnect',
+    downloads: 18650,
+    rating: 4.9,
+    reviews_count: 287
+  },
+  {
+    id: 'performance-analytics',
+    name: 'Performance Intelligence',
+    description: 'Advanced analytics for student performance and institutional insights',
+    category: 'analytics',
+    icon: TrendingUp,
+    version: '1.7.0',
+    price: 2500,
+    isInstalled: false,
+    isEnabled: false,
+    required_plan: 'enterprise',
+    features: ['Learning Analytics', 'Predictive Modeling', 'Custom Dashboards', 'Benchmark Reports'],
+    created_at: '2024-02-20',
+    updated_at: '2024-03-25',
+    developer: 'DataInsights',
+    downloads: 3450,
+    rating: 4.8,
+    reviews_count: 45
+  },
+  {
+    id: 'fee-management',
+    name: 'Comprehensive Fee Manager',
+    description: 'Complete fee collection and financial management system',
+    category: 'finance',
+    icon: CreditCard,
+    version: '3.0.2',
+    price: 1600,
+    isInstalled: false,
+    isEnabled: false,
+    required_plan: 'professional',
+    features: ['Online Payments', 'Installment Plans', 'Late Fee Automation', 'Financial Reports'],
+    created_at: '2024-01-30',
+    updated_at: '2024-03-14',
+    developer: 'FinanceFlow',
+    downloads: 11200,
+    rating: 4.5,
+    reviews_count: 189
+  },
+  {
+    id: 'timetable-optimizer',
+    name: 'AI Timetable Generator',
+    description: 'Intelligent timetable creation with conflict resolution and optimization',
+    category: 'administration',
+    icon: Calendar,
+    version: '2.3.0',
+    price: 1400,
+    isInstalled: false,
+    isEnabled: false,
+    required_plan: 'professional',
+    features: ['Auto Generation', 'Conflict Detection', 'Resource Optimization', 'Quick Adjustments'],
+    created_at: '2024-02-25',
+    updated_at: '2024-03-30',
+    developer: 'TimeTable AI',
+    downloads: 6890,
+    rating: 4.6,
+    reviews_count: 102
   }
 ];
 
 export const AppStore = () => {
-  const [modules, setModules] = useState<Module[]>(availableModules);
+  const navigate = useNavigate();
+  const [modules, setModules] = useState<StoreModule[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [isAdmin, setIsAdmin] = useState(true); // This would come from auth context
+  const [isAdmin, setIsAdmin] = useState(true);
   const { toast } = useToast();
+
+  useEffect(() => {
+    loadModules();
+  }, []);
+
+  const loadModules = async () => {
+    try {
+      const dbModules = await moduleService.getAllModules();
+      // Combine with additional modules for demo
+      const allModules = [...additionalModules, ...dbModules.map(m => ({
+        ...m,
+        icon: getIconForCategory(m.category),
+        isInstalled: Math.random() > 0.6, // Random for demo
+        isEnabled: Math.random() > 0.5
+      }))];
+      setModules(allModules);
+    } catch (error) {
+      // Fallback to static modules if DB fails
+      setModules(additionalModules);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getIconForCategory = (category: string) => {
+    const iconMap: Record<string, any> = {
+      academic: GraduationCap,
+      administration: Building2,
+      communication: MessageSquare,
+      analytics: BarChart3,
+      finance: DollarSign,
+      ai: Brain
+    };
+    return iconMap[category] || Settings;
+  };
 
   const filteredModules = modules.filter(module => {
     const matchesSearch = module.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -201,7 +362,20 @@ export const AppStore = () => {
     });
   };
 
-  const ModuleCard = ({ module }: { module: Module }) => (
+  const renderStars = (rating: number) => (
+    <div className="flex space-x-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <Star
+          key={star}
+          className={`w-3 h-3 ${
+            star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'
+          }`}
+        />
+      ))}
+    </div>
+  );
+
+  const ModuleCard = ({ module }: { module: StoreModule }) => (
     <Card className="shadow-card hover:shadow-elevated transition-smooth">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
@@ -216,12 +390,20 @@ export const AppStore = () => {
                   v{module.version}
                 </Badge>
                 <Badge 
-                  variant={module.requiredPlan === 'basic' ? 'default' : 
-                          module.requiredPlan === 'professional' ? 'secondary' : 'outline'}
+                  variant={module.required_plan === 'basic' ? 'default' : 
+                          module.required_plan === 'professional' ? 'secondary' : 'outline'}
                   className="text-xs"
                 >
-                  {module.requiredPlan}
+                  {module.required_plan}
                 </Badge>
+                {module.rating && (
+                  <div className="flex items-center space-x-1">
+                    {renderStars(module.rating)}
+                    <span className="text-xs text-muted-foreground">
+                      ({module.reviews_count})
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -256,19 +438,30 @@ export const AppStore = () => {
         
         <div className="flex items-center justify-between pt-4 border-t">
           {!module.isInstalled ? (
-            <Button 
-              onClick={() => handleInstallModule(module.id)}
-              className="flex-1"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Install Module
-            </Button>
+            <div className="flex space-x-2 w-full">
+              <Button 
+                onClick={() => handleInstallModule(module.id)}
+                className="flex-1"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Install Module
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => navigate(`/app-store/module/${module.id}`)}
+              >
+                View Details
+              </Button>
+            </div>
           ) : (
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center space-x-2">
                 <Badge variant={module.isEnabled ? "default" : "secondary"}>
                   {module.isEnabled ? "Enabled" : "Disabled"}
                 </Badge>
+                <span className="text-xs text-muted-foreground">
+                  {module.downloads?.toLocaleString()} downloads
+                </span>
               </div>
               
               {isAdmin && (
@@ -277,7 +470,11 @@ export const AppStore = () => {
                     checked={module.isEnabled}
                     onCheckedChange={(checked) => handleToggleModule(module.id, checked)}
                   />
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => navigate(`/app-store/module/${module.id}`)}
+                  >
                     <Settings className="w-4 h-4" />
                   </Button>
                 </div>
@@ -288,6 +485,14 @@ export const AppStore = () => {
       </CardContent>
     </Card>
   );
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -301,9 +506,14 @@ export const AppStore = () => {
             Discover and manage educational modules for your institution
           </p>
         </div>
-        <Badge variant="outline" className="px-3 py-1">
-          {modules.filter(m => m.isInstalled).length} of {modules.length} installed
-        </Badge>
+        <div className="flex items-center space-x-4">
+          <Badge variant="outline" className="px-3 py-1">
+            {modules.filter(m => m.isInstalled).length} of {modules.length} installed
+          </Badge>
+          <Badge variant="secondary" className="px-3 py-1">
+            {modules.reduce((acc, m) => acc + (m.downloads || 0), 0).toLocaleString()} total downloads
+          </Badge>
+        </div>
       </div>
 
       <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>

@@ -7,6 +7,8 @@ import { Header } from "@/components/Header";
 import { Navigation } from "@/components/Navigation";
 import { AppStore } from "@/components/AppStore";
 import { TenantManager } from "@/components/TenantManager";
+import { ModuleDetails } from "@/components/ModuleDetails";
+import { ModuleAnalytics } from "@/components/ModuleAnalytics";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
@@ -28,6 +30,32 @@ const App = () => (
                 <main className="flex-1 overflow-auto">
                   <div className="container mx-auto p-8 max-w-7xl">
                     <AppStore />
+                  </div>
+                </main>
+              </div>
+            </div>
+          } />
+          <Route path="/app-store/module/:moduleId" element={
+            <div className="min-h-screen bg-background">
+              <Header />
+              <div className="flex">
+                <Navigation />
+                <main className="flex-1 overflow-auto">
+                  <div className="container mx-auto p-8 max-w-7xl">
+                    <ModuleDetails />
+                  </div>
+                </main>
+              </div>
+            </div>
+          } />
+          <Route path="/analytics" element={
+            <div className="min-h-screen bg-background">
+              <Header />
+              <div className="flex">
+                <Navigation />
+                <main className="flex-1 overflow-auto">
+                  <div className="container mx-auto p-8 max-w-7xl">
+                    <ModuleAnalytics />
                   </div>
                 </main>
               </div>
