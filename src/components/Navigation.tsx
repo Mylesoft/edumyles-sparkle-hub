@@ -28,7 +28,8 @@ const navigationSections = [
         icon: Settings,
         description: "Platform governance & partner management",
         isActive: false,
-        badge: "Admin"
+        badge: "Admin",
+        href: "/super-admin"
       },
       {
         title: "School Admin Panel", 
