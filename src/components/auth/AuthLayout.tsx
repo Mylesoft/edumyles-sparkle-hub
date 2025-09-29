@@ -1,13 +1,24 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { LoginForm } from './LoginForm';
 import { SignupForm } from './SignupForm';
 import { SupabaseStatus } from '../SupabaseStatus';
+import { useAuth } from '@/contexts/AuthContext';
 import eduMylesLogo from '@/assets/edumyles-logo.png';
 
 export const AuthLayout = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (!loading && user) {
+      navigate('/app-store');
+    }
+  }, [user, loading, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-hero relative overflow-hidden">
