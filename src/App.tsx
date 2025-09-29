@@ -12,6 +12,7 @@ import { AppStore } from "@/components/AppStore";
 import { TenantManager } from "@/components/TenantManager";
 import { ModuleDetails } from "@/components/ModuleDetails";
 import { ModuleAnalytics } from "@/components/ModuleAnalytics";
+import SuperAdminPanel from "@/components/panels/SuperAdminPanel";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
@@ -72,6 +73,14 @@ const App = () => (
               <ProtectedRoute allowedRoles={['super_admin']}>
                 <MainLayout>
                   <TenantManager />
+                </MainLayout>
+              </ProtectedRoute>
+            } />
+
+            <Route path="/super-admin" element={
+              <ProtectedRoute allowedRoles={['super_admin']}>
+                <MainLayout>
+                  <SuperAdminPanel />
                 </MainLayout>
               </ProtectedRoute>
             } />
