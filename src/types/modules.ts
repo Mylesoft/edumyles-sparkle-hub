@@ -43,11 +43,17 @@ export interface TenantModule {
 export interface UserProfile {
   id: string;
   tenant_id: string;
-  role: 'super_admin' | 'tenant_admin' | 'teacher' | 'student' | 'staff' | 'alumni';
   full_name: string;
   avatar_url?: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface UserRole {
+  id: string;
+  user_id: string;
+  role: 'super_admin' | 'tenant_admin' | 'teacher' | 'student' | 'staff' | 'alumni';
+  created_at: string;
 }
 
 export interface ModuleReview {

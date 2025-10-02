@@ -1,24 +1,21 @@
-import type { Module, ModuleReview } from '@/types/modules';
+import type { Module, ModuleReview, Tenant, TenantModule } from '@/types/modules';
 
-// Temporary mock service until database tables are created
+// Temporary mock service until database tables are properly connected
 export const moduleService = {
   async getAllModules(): Promise<Module[]> {
-    // Return empty array until modules table is created
+    // This will be implemented once we connect to the real database
     return [];
   },
 
   async getModuleById(id: string): Promise<Module | null> {
-    // Return null until modules table is created
     return null;
   },
 
   async getModuleReviews(moduleId: string): Promise<ModuleReview[]> {
-    // Return empty array until module_reviews table is created
     return [];
   },
 
   async addReview(review: Omit<ModuleReview, 'id' | 'created_at'>): Promise<ModuleReview | null> {
-    // Return null until module_reviews table is created
     return null;
   }
 };

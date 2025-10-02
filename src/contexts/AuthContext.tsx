@@ -5,15 +5,17 @@ import { supabase } from '@/integrations/supabase/client';
 interface UserProfile {
   id: string;
   tenant_id: string;
-  role: 'super_admin' | 'tenant_admin' | 'teacher' | 'student' | 'staff' | 'alumni';
   full_name: string;
   avatar_url?: string;
 }
+
+type AppRole = 'super_admin' | 'tenant_admin' | 'teacher' | 'student' | 'staff' | 'alumni';
 
 interface AuthContextType {
   session: Session | null;
   user: User | null;
   profile: UserProfile | null;
+  roles: AppRole[];
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signInWithGoogle: () => Promise<{ error: any }>;
@@ -27,6 +29,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
@@ -38,10 +41,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .maybeSingle();
 
       if (error) throw error;
-      setProfile(data as UserProfile);
+      setProfile(data);
+
+      // Fetch user roles separately
+      const { data: rolesData, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId);
+
+      if (rolesError) throw rolesError;
+      setRoles(rolesData?.map(r => r.role as AppRole) || []);
     } catch (error) {
       console.error('Error fetching profile:', error);
       setProfile(null);
+      setRoles([]);
     }
   };
 
@@ -106,21 +119,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     });
     
-    if (error || !data.user) {
-      return { error };
-    }
-
-    // Create user profile
-    const { error: profileError } = await supabase
-      .from('user_profiles')
-      .insert({
-        id: data.user.id,
-        tenant_id: tenantId,
-        role: role as any,
-        full_name: fullName
-      });
-
-    return { error: profileError };
+    return { error };
   };
 
   const signOut = async () => {
@@ -132,6 +131,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       session,
       user,
       profile,
+      roles,
       loading,
       signIn,
       signInWithGoogle,

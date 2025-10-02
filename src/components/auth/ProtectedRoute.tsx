@@ -9,7 +9,7 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, roles, loading } = useAuth();
 
   if (loading) {
     return (
@@ -23,7 +23,7 @@ export const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) 
     return <Navigate to="/auth" replace />;
   }
 
-  if (allowedRoles && !allowedRoles.includes(profile.role)) {
+  if (allowedRoles && !roles.some(role => allowedRoles.includes(role))) {
     return <Navigate to="/unauthorized" replace />;
   }
 

@@ -14,26 +14,204 @@ export type Database = {
   }
   public: {
     Tables: {
+      module_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string | null
+          id: string
+          module_id: string
+          rating: number | null
+          tenant_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          module_id: string
+          rating?: number | null
+          tenant_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          module_id?: string
+          rating?: number | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "module_reviews_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "module_reviews_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      modules: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string | null
+          developer: string | null
+          downloads: number | null
+          features: Json | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          manifest: Json | null
+          name: string
+          price: number | null
+          rating: number | null
+          required_plan: Database["public"]["Enums"]["subscription_plan"] | null
+          reviews_count: number | null
+          updated_at: string | null
+          version: string
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description?: string | null
+          developer?: string | null
+          downloads?: number | null
+          features?: Json | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          manifest?: Json | null
+          name: string
+          price?: number | null
+          rating?: number | null
+          required_plan?:
+            | Database["public"]["Enums"]["subscription_plan"]
+            | null
+          reviews_count?: number | null
+          updated_at?: string | null
+          version?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          developer?: string | null
+          downloads?: number | null
+          features?: Json | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          manifest?: Json | null
+          name?: string
+          price?: number | null
+          rating?: number | null
+          required_plan?:
+            | Database["public"]["Enums"]["subscription_plan"]
+            | null
+          reviews_count?: number | null
+          updated_at?: string | null
+          version?: string
+        }
+        Relationships: []
+      }
+      tenant_modules: {
+        Row: {
+          configuration: Json | null
+          configured_at: string | null
+          created_at: string | null
+          id: string
+          installed_at: string | null
+          is_enabled: boolean | null
+          is_installed: boolean | null
+          module_id: string
+          tenant_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          configuration?: Json | null
+          configured_at?: string | null
+          created_at?: string | null
+          id?: string
+          installed_at?: string | null
+          is_enabled?: boolean | null
+          is_installed?: boolean | null
+          module_id: string
+          tenant_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          configuration?: Json | null
+          configured_at?: string | null
+          created_at?: string | null
+          id?: string
+          installed_at?: string | null
+          is_enabled?: boolean | null
+          is_installed?: boolean | null
+          module_id?: string
+          tenant_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_modules_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tenant_modules_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenants: {
         Row: {
           created_at: string | null
+          current_modules: number | null
+          email: string | null
           id: string
+          modules_limit: number | null
           name: string
           status: string
+          subscription_plan:
+            | Database["public"]["Enums"]["subscription_plan"]
+            | null
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
+          current_modules?: number | null
+          email?: string | null
           id?: string
+          modules_limit?: number | null
           name: string
           status?: string
+          subscription_plan?:
+            | Database["public"]["Enums"]["subscription_plan"]
+            | null
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
+          current_modules?: number | null
+          email?: string | null
           id?: string
+          modules_limit?: number | null
           name?: string
           status?: string
+          subscription_plan?:
+            | Database["public"]["Enums"]["subscription_plan"]
+            | null
           updated_at?: string | null
         }
         Relationships: []
@@ -44,7 +222,6 @@ export type Database = {
           created_at: string | null
           full_name: string
           id: string
-          role: string
           tenant_id: string
           updated_at: string | null
         }
@@ -53,7 +230,6 @@ export type Database = {
           created_at?: string | null
           full_name: string
           id: string
-          role: string
           tenant_id: string
           updated_at?: string | null
         }
@@ -62,9 +238,29 @@ export type Database = {
           created_at?: string | null
           full_name?: string
           id?: string
-          role?: string
           tenant_id?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
         }
         Relationships: []
       }
@@ -73,10 +269,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role:
+        | "super_admin"
+        | "tenant_admin"
+        | "teacher"
+        | "student"
+        | "staff"
+        | "alumni"
+      subscription_plan: "basic" | "professional" | "enterprise"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -203,6 +412,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: [
+        "super_admin",
+        "tenant_admin",
+        "teacher",
+        "student",
+        "staff",
+        "alumni",
+      ],
+      subscription_plan: ["basic", "professional", "enterprise"],
+    },
   },
 } as const

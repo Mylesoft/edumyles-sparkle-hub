@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 
 export const Header = () => {
-  const { profile, signOut } = useAuth();
+  const { profile, roles, signOut } = useAuth();
 
   const getInitials = (name: string) => {
     return name
@@ -70,7 +70,7 @@ export const Header = () => {
                   </Avatar>
                   <div className="text-left hidden md:block">
                     <p className="text-sm font-medium">{profile?.full_name || 'User'}</p>
-                    <p className="text-xs text-muted-foreground capitalize">{profile?.role.replace('_', ' ')}</p>
+                    <p className="text-xs text-muted-foreground capitalize">{roles[0]?.replace('_', ' ') || 'User'}</p>
                   </div>
                 </Button>
               </DropdownMenuTrigger>
