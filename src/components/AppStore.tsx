@@ -36,7 +36,8 @@ import {
   BookmarkPlus
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { moduleService, type Module } from "@/lib/supabase";
+import { moduleService } from "@/services/moduleService";
+import type { Module } from "@/types/modules";
 
 interface StoreModule extends Module {
   icon: any;

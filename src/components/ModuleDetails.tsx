@@ -20,7 +20,8 @@ import {
   AlertCircle
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { moduleService, type Module, type ModuleReview } from "@/lib/supabase";
+import { moduleService } from "@/services/moduleService";
+import type { Module, ModuleReview } from "@/types/modules";
 
 export const ModuleDetails = () => {
   const { moduleId } = useParams();
